@@ -21,6 +21,12 @@ export const useAuthStore = defineStore('auth', {
             if (data) {
                 this.$patch(JSON.parse(data));
             }
+        },
+        setUserData(user) {
+            this.user = user;
         }
-    }
+    },
+    getters: {
+        getUser: (state) => state.user,
+    },
 });

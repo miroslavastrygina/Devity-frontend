@@ -66,6 +66,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
 
 const firstName = ref('');
 const lastName = ref('');
@@ -76,6 +77,7 @@ const password = ref('');
 const password_confirmation = ref('');
 const errorMessage = ref('');
 const router = useRouter();
+const authStore = useAuthStore();
 const backendUrl = import.meta.env.VITE_APP_BACKEND;
 
 // Метод отправки данных на сервер через API
@@ -99,8 +101,13 @@ async function submitRegistration() {
     });
 
     if (!response.ok) {
-        const errorData = await response.json();
         errorMessage.value = errorData.message || 'Ошибка входа. Проверьте свои данные.';
+    } else {
+        const result = await response.json();
+        authStore.setToken(result.token)
+        authStore.changeAuthStatus();
+        authStore.saveToSessionStorage();
+        router.push({ name: 'home' })
     }
 
 }

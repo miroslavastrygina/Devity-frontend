@@ -57,11 +57,10 @@ async function submitLogin() {
         mode: 'cors'
     });
 
-    const result = await response.json();
-
     if (!response.ok) {
         errorMessage.value = result.message || 'Ошибка входа. Проверьте свои данные.';
     } else {
+        const result = await response.json();
         authStore.setToken(result.token)
         authStore.changeAuthStatus();
         authStore.saveToSessionStorage();

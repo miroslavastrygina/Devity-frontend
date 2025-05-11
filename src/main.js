@@ -12,7 +12,12 @@ app.use(createPinia())
 app.use(router)
 
 import { useAuthStore } from '@/stores/auth';
+import { useDataStore } from '@/stores/data';
+
 const authStore = useAuthStore();
+const dataStore = useDataStore();
+
 authStore.restoreFromSessionStorage();
+dataStore.restoreFromSessionStorage();
 
 app.mount('#app')
