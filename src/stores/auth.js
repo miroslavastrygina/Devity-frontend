@@ -7,6 +7,27 @@ export const useAuthStore = defineStore('auth', {
         token: null,
     }),
     actions: {
+        async getUserData() {
+            const response = await fetch(`${backendUrl}/user`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${auth.token}`,
+                    'Accept': 'application/json'
+                },
+                mode: 'cors'
+            });
+
+            if (!response.ok) {
+                console.error('Ошибка получения данных пользователя');
+                router.push('/login');
+            } else {
+                const result = await response.json();
+                console.log(result);
+
+                auth.setUserData(result);
+                auth.saveToSessionStorage();
+            }
+        },
         changeAuthStatus() {
             this.isAuthenticated = true;
         },

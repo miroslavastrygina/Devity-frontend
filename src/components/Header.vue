@@ -1,11 +1,13 @@
 <template>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
-            <span class="navbar-brand">Онлайн-платформа Devity</span>
+            <router-link :to="`/`" class="navbar-brand">
+                Онлайн-платформа Devity
+            </router-link>
             <div class="d-flex ms-auto">
-                <span class="navbar-text">
+                <router-link :to="`/profile`" class="navbar-text">
                     👤 {{ auth.user?.name || 'Гость' }}
-                </span>
+                </router-link>
             </div>
         </div>
     </nav>
