@@ -61,6 +61,7 @@ onMounted(() => {
     data.fetchBlcoks(auth.token);
     data.fetchLessons(auth.token);
     data.fetchTests(auth.token);
+    data.fetchAssignments(auth.token);
 });
 
 </script>

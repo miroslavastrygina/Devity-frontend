@@ -10,6 +10,7 @@
         </div>
     </div>
     <TestList :tests="lesson.tests" />
+    <AssignmentListScreen v-if="lesson.assignments" :assignments="lesson.assignments"/>
 </template>
 
 <script setup>
@@ -22,6 +23,7 @@ import Header from "./Header.vue";
 import TestList from './TestListScreen.vue';
 import { useDataStore } from '@/stores/data';
 import { useAuthStore } from '@/stores/auth';
+import AssignmentListScreen from './AssignmentListScreen.vue';
 
 const { id } = defineProps({
     id: String
@@ -55,6 +57,7 @@ onMounted(() => {
     data.fetchBlcoks(auth.token);
     data.fetchLessons(auth.token);
     data.fetchTests(auth.token);
+    data.fetchAssignments(auth.token);
 
     highlightCode();
 });

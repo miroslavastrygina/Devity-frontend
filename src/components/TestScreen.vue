@@ -51,7 +51,6 @@ const started = ref(false);
 const answers = ref({});
 const timer = ref(0);
 const interval = ref(null);
-let resultId;
 let timerOff = false;
 
 // преобразуем минуты из float в секунды
@@ -101,4 +100,3 @@ onUpdated(() => {
     });
 });
 </script>
-  

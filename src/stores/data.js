@@ -6,6 +6,7 @@ export const useDataStore = defineStore('data', {
         blocks: null,
         lessons: null,
         tests: null,
+        assignments: null,
         isLoading: false,
         backendUrl: import.meta.env.VITE_APP_BACKEND
     }),
@@ -22,6 +23,9 @@ export const useDataStore = defineStore('data', {
         findTest(id) {
             return this.tests.find(test => test.id === Number(id));
         },
+        findAssignment(id) {
+            return this.assignments.find(assignment => assignment.id === Number(id));
+        },
         changeLoadingStatus() {
             this.isLoading = !this.isLoading;
         },
@@ -36,6 +40,9 @@ export const useDataStore = defineStore('data', {
         },
         setTests(tests) {
             this.tests = tests;
+        },
+        setAssignment(assignments) {
+            this.assignments = assignments;
         },
         saveToSessionStorage() {
             sessionStorage.setItem('data', JSON.stringify(this.$state));
@@ -129,6 +136,27 @@ export const useDataStore = defineStore('data', {
             }
         },
 
+        async fetchAssignments(token) {
+            this.changeLoadingStatus();
+            const response = await fetch(`${this.backendUrl}/assignment`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json'
+                },
+                mode: 'cors'
+            });
+
+            if (!response.ok) {
+                console.error('Ошибка получения данных');
+            } else {
+                const result = await response.json();
+                this.setAssignment(result.data);
+                this.changeLoadingStatus();
+                this.saveToSessionStorage();
+            }
+        },
+
         async saveAnswers(token, data, userId) {
             this.changeLoadingStatus();
             const questions = Object.entries(data).map(([questionId, userAnswer]) => {
@@ -179,6 +207,36 @@ export const useDataStore = defineStore('data', {
                 return result;
             }
         },
+
+        async uploadAssignmentFile(token, payload) {
+            const formData = new FormData();
+
+            // добавляем все данные
+            formData.append('file', payload.file);
+            formData.append('assignment_id', payload.assignment_id);
+            formData.append('user_id', payload.user_id);
+            formData.append('submitted_at', payload.submitted_at);
+
+            try {
+                const response = await fetch(`${this.backendUrl}/assignment-submission/create`, {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    console.error('Ошибка при загрузке файла');
+                    return;
+                }
+
+                const result = await response.json();
+                console.log('Файл успешно загружен:', result);
+            } catch (error) {
+                console.error('Ошибка при отправке файла:', error);
+            }
+        }
     },
     getters: {
 
