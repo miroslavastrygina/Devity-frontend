@@ -9,6 +9,7 @@ import TestScreen from '../components/TestScreen.vue'
 import ResultTestScreen from '../components/ResultTestScreen.vue'
 import ProfileScreen from '../components/ProfileScreen.vue'
 import AssignmentScreen from '../components/AssignmentScreen.vue'
+import AssigmentGradeScreen from '../components/AssigmentGradeScreen.vue'
 import { useAuthStore } from '../stores/auth' 
 
 const router = createRouter({
@@ -74,6 +75,12 @@ const router = createRouter({
       path: '/profile',
       name: 'ProfileScreen',
       component: ProfileScreen,
+      props: true
+    },
+    {
+      path: '/assignments',
+      name: 'AssigmentGradeScreen',
+      component: AssigmentGradeScreen,
       props: true
     },
   ],

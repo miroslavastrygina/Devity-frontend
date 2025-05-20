@@ -1,61 +1,104 @@
 <template>
     <Header />
-    <div class="container mt-4">
-        <div class="row justify-content-center">
-            <div class="col-md-6"> <!-- Средняя ширина формы -->
-                <div class="card shadow-sm">
-                    <div class="card-header">
-                        <h5 class="mb-0">Профиль пользователя</h5>
-                    </div>
-                    <div class="card-body">
-                        <!-- Имя -->
-                        <div class="mb-3">
-                            <label class="form-label">Имя</label>
-                            <input v-model="form.name" type="text" class="form-control" />
-                        </div>
-
-                        <!-- Фамилия -->
-                        <div class="mb-3">
-                            <label class="form-label">Фамилия</label>
-                            <input v-model="form.surname" type="text" class="form-control" />
-                        </div>
-
-                        <!-- Отчество -->
-                        <div class="mb-3">
-                            <label class="form-label">Отчество</label>
-                            <input v-model="form.patronymic" type="text" class="form-control" />
-                        </div>
-
-                        <!-- Телефон -->
-                        <div class="mb-3">
-                            <label class="form-label">Телефон</label>
-                            <input v-model="form.phone" type="text" class="form-control" />
-                        </div>
-
-                        <!-- Email -->
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <input v-model="form.email" type="email" class="form-control" />
-                        </div>
-                        <!-- Сообщение об успехе -->
-                        <div v-if="successMessage" class="alert alert-success" role="alert">
-                            {{ successMessage }}
-                        </div>
-
-                        <!-- Сообщение об ошибке -->
-                        <div v-if="errorMessage" class="alert alert-danger" role="alert">
-                            {{ errorMessage }}
-                        </div>
-                        <!-- Кнопка -->
-                        <div class="text-end">
-                            <button class="btn btn-success" @click="saveProfile">Сохранить</button>
-                        </div>
-                    </div>
-                </div>
+    <div class="container mt-5 animate__animated animate__fadeIn">
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <div class="card shadow-lg rounded-4 p-4">
+            <div class="card-header bg-purple text-white rounded-3 mb-4">
+              <h5 class="mb-0">Профиль пользователя</h5>
             </div>
+            <div class="card-body">
+              <div class="mb-4">
+                <label class="form-label fw-semibold">Имя</label>
+                <input v-model="form.name" type="text" class="form-control rounded-3 px-3 py-2" />
+              </div>
+  
+              <div class="mb-4">
+                <label class="form-label fw-semibold">Фамилия</label>
+                <input v-model="form.surname" type="text" class="form-control rounded-3 px-3 py-2" />
+              </div>
+  
+              <div class="mb-4">
+                <label class="form-label fw-semibold">Отчество</label>
+                <input v-model="form.patronymic" type="text" class="form-control rounded-3 px-3 py-2" />
+              </div>
+  
+              <div class="mb-4">
+                <label class="form-label fw-semibold">Телефон</label>
+                <input v-model="form.phone" type="text" class="form-control rounded-3 px-3 py-2" />
+              </div>
+  
+              <div class="mb-4">
+                <label class="form-label fw-semibold">Email</label>
+                <input v-model="form.email" type="email" class="form-control rounded-3 px-3 py-2" />
+              </div>
+  
+              <div v-if="successMessage" class="alert alert-success py-3 rounded-3" role="alert">
+                {{ successMessage }}
+              </div>
+  
+              <div v-if="errorMessage" class="alert alert-danger py-3 rounded-3" role="alert">
+                {{ errorMessage }}
+              </div>
+  
+              <div class="text-end">
+                <button class="btn btn-purple fw-semibold rounded-pill px-4 py-2 shadow-sm hover-scale" @click="saveProfile">
+                  Сохранить
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
-</template>
+  </template>
+  
+  <style scoped>
+  .bg-purple {
+    background-color: #6f42c1;
+  }
+  
+  .btn-purple {
+    background-color: #6f42c1;
+    color: white;
+    transition: background-color 0.3s ease;
+    border: none;
+  }
+  
+  .btn-purple:hover {
+    background-color: #5a36a1;
+  }
+  
+  .hover-scale {
+    transition: transform 0.2s ease;
+  }
+  
+  .hover-scale:hover {
+    transform: scale(1.05);
+  }
+  
+  .form-label {
+    font-size: 1rem;
+  }
+  
+  .form-control {
+    font-size: 1rem;
+    box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.1);
+  }
+  
+  .card {
+    border: none;
+  }
+  
+  .card-header {
+    padding: 1rem 1.5rem;
+  }
+  
+  .card-body {
+    padding: 0 1.5rem 1.5rem;
+  }
+  </style>
+  
 
 <script setup>
 import Header from './Header.vue';

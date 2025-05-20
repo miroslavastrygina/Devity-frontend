@@ -7,6 +7,7 @@ export const useDataStore = defineStore('data', {
         lessons: null,
         tests: null,
         assignments: null,
+        results: null,
         isLoading: false,
         backendUrl: import.meta.env.VITE_APP_BACKEND
     }),
@@ -43,6 +44,9 @@ export const useDataStore = defineStore('data', {
         },
         setAssignment(assignments) {
             this.assignments = assignments;
+        },
+        setResult(results) {
+            this.results = results;
         },
         saveToSessionStorage() {
             sessionStorage.setItem('data', JSON.stringify(this.$state));
@@ -156,7 +160,26 @@ export const useDataStore = defineStore('data', {
                 this.saveToSessionStorage();
             }
         },
+        async fetchAssignmentsResults(token, id) {
+            this.changeLoadingStatus();
+            const response = await fetch(`${this.backendUrl}/assignment-submission/grades-by-student/${id}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json'
+                },
+                mode: 'cors'
+            });
 
+            if (!response.ok) {
+                console.error('Ошибка получения данных');
+            } else {
+                const result = await response.json();
+                this.setResult(result.data);
+                this.changeLoadingStatus();
+                this.saveToSessionStorage();
+            }
+        },
         async saveAnswers(token, data, userId) {
             this.changeLoadingStatus();
             const questions = Object.entries(data).map(([questionId, userAnswer]) => {
