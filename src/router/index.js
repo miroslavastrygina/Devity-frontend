@@ -1,5 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import LoginForm from '../components/LoginForm.vue'
+import MainScreen from '../components/MainScreen.vue'
+import RegisterForm from '../components/RegisterForm.vue'
+import CourseScreen from '../components/CourseScreen.vue'
+import BlockScreen from '../components/BlockScreen.vue'
+import LessonScreen from '../components/LessonScreen.vue'
+import TestScreen from '../components/TestScreen.vue'
+import ResultTestScreen from '../components/ResultTestScreen.vue'
+import ProfileScreen from '../components/ProfileScreen.vue'
+import AssignmentScreen from '../components/AssignmentScreen.vue'
+import AssigmentGradeScreen from '../components/AssigmentGradeScreen.vue'
+import { useAuthStore } from '../stores/auth' 
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -7,17 +18,86 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView,
+      component: MainScreen,
+      meta: { breadcrumb: 'Главная' },
     },
     {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue'),
+      path: '/login',
+      name: 'login',
+      component: LoginForm,
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: RegisterForm,
+    },
+    {
+      path: '/course/:id',
+      name: 'CourseScreen',
+      component: CourseScreen,
+      props: true,
+      meta: { breadcrumb: 'Курсы' },
+    },
+    {
+      path: '/block/:id',
+      name: 'BlockScreen',
+      component: BlockScreen,
+      props: true,
+      meta: { breadcrumb: 'Блоки' },
+    },
+    {
+      path: '/lesson/:id',
+      name: 'LessonScreen',
+      component: LessonScreen,
+      props: true,
+      meta: { breadcrumb: 'Уроки' },
+    },
+    {
+      path: '/test/:id',
+      name: 'TestScreen',
+      component: TestScreen,
+      props: true,
+      meta: { breadcrumb: 'Тесты' },
+    },
+    {
+      path: '/assignment/:id',
+      name: 'AssignmentScreen',
+      component: AssignmentScreen,
+      props: true,
+    },
+    {
+      path: '/results/:id',
+      name: 'ResultTestScreen',
+      component: ResultTestScreen,
+      props: true
+    },
+    {
+      path: '/profile',
+      name: 'ProfileScreen',
+      component: ProfileScreen,
+      props: true
+    },
+    {
+      path: '/assignments',
+      name: 'AssigmentGradeScreen',
+      component: AssigmentGradeScreen,
+      props: true
     },
   ],
+})
+
+// Глобальный навигационный охранник
+router.beforeEach((to, from, next) => {
+  const auth = useAuthStore()
+
+  const publicPages = ['/login', '/register']
+  const authRequired = !publicPages.includes(to.path)
+
+  if (authRequired && !auth.isAuthenticated) {
+    return next('/login')
+  }
+
+  next()
 })
 
 export default router
