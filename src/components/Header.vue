@@ -16,6 +16,12 @@
         <router-link :to="`/profile`" class="text-purple text-decoration-none fw-medium">
           👤 {{ auth.user?.name || 'Гость' }}
         </router-link>
+        <router-link :to="`/profile`" class="position-relative text-decoration-none">
+          <span class="badge-icon">🏅</span>
+          <span v-if="achievements.unlockedCount" class="badge-count">
+            {{ achievements.unlockedCount }}
+          </span>
+        </router-link>
       </div>
     </div>
   </nav>
@@ -23,7 +29,9 @@
   
   <script setup>
   import { useAuthStore } from '@/stores/auth';
+  import { useAchievementsStore } from '@/stores/achievements';
   const auth = useAuthStore();
+  const achievements = useAchievementsStore();
   </script>
   
   <style scoped>
@@ -33,6 +41,32 @@
   
   .text-purple:hover {
     color: #5a34a0;
+  }
+
+  .badge-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    background: #f0e7ff;
+    font-size: 1rem;
+  }
+
+  .badge-count {
+    position: absolute;
+    top: -0.3rem;
+    right: -0.3rem;
+    min-width: 1.15rem;
+    height: 1.15rem;
+    border-radius: 999px;
+    padding: 0 0.25rem;
+    background: #6f42c1;
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    display: grid;
+    place-items: center;
   }
   </style>
   

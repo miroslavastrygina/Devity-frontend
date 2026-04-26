@@ -18,7 +18,7 @@
                     </p>
 
                     <!-- Большая кнопка -->
-                    <RouterLink to="/course/7" class="btn btn-purple btn-xl px-5 py-3 fs-4">
+                    <RouterLink :to="startCourseLink" class="btn btn-purple btn-xl px-5 py-3 fs-4" :class="{ disabled: !startCourseLink }">
                         Начать курс
                     </RouterLink>
                 </div>
@@ -31,8 +31,7 @@
 import { useAuthStore } from '@/stores/auth';
 import { useDataStore } from '@/stores/data';
 import { useRouter } from 'vue-router';
-import { onMounted } from 'vue';
-import CourseList from "./CourseListScreen.vue";
+import { computed, onMounted } from 'vue';
 import Header from "./Header.vue";
 
 const auth = useAuthStore();
@@ -40,42 +39,37 @@ const data = useDataStore();
 const router = useRouter();
 const backendUrl = import.meta.env.VITE_APP_BACKEND;
 
-async function getUserData() {
-    const response = await fetch(`${backendUrl}/user`, {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${auth.token}`,
-            'Accept': 'application/json'
-        },
-        mode: 'cors'
-    });
+const startCourseLink = computed(() => {
+    const firstCourse = data.courses?.[0];
+    return firstCourse ? `/course/${firstCourse.id}` : '';
+});
 
-    if (!response.ok) {
-        console.error('Ошибка получения данных пользователя');
-        router.push('/login');
-    } else {
-        const result = await response.json();
-        console.log(result);
-
-        auth.setUserData(result);
-        auth.saveToSessionStorage();
-    }
-}
-
-onMounted(() => {
+onMounted(async () => {
     if (!auth.isAuthenticated) {
         router.push('/login');
-    }
-    if (auth.user === null) {
-        getUserData();
+        return;
     }
 
-    data.fetchCourses(auth.token);
-    data.fetchBlcoks(auth.token);
-    data.fetchLessons(auth.token);
-    data.fetchTests(auth.token);
-    data.fetchAssignments(auth.token);
-    data.fetchAssignmentsResults(auth.token, auth.user.id)
+    if (!auth.user) {
+        const user = await auth.fetchCurrentUser();
+        if (!user) {
+            auth.clearAuth();
+            router.push('/login');
+            return;
+        }
+    }
+
+    await Promise.all([
+        data.fetchCourses(auth.token),
+        data.fetchBlcoks(auth.token),
+        data.fetchLessons(auth.token),
+        data.fetchTests(auth.token),
+        data.fetchAssignments(auth.token)
+    ]);
+
+    if (auth.user?.id) {
+        await data.fetchAssignmentsResults(auth.token, auth.user.id);
+    }
 });
 
 </script>

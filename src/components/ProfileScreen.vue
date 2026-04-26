@@ -1,38 +1,53 @@
 <template>
     <Header />
-    <div class="container mt-5 animate__animated animate__fadeIn">
+    <div class="container mt-5 mb-5 animate__animated animate__fadeIn">
       <div class="row justify-content-center">
-        <div class="col-md-6">
-          <div class="card shadow-lg rounded-4 p-4">
+        <div class="col-12 col-xl-10">
+          <div class="card shadow-lg rounded-4 p-4 profile-card">
             <div class="card-header bg-purple text-white rounded-3 mb-4">
               <h5 class="mb-0">Профиль пользователя</h5>
             </div>
             <div class="card-body">
-              <div class="mb-4">
-                <label class="form-label fw-semibold">Имя</label>
-                <input v-model="form.name" type="text" class="form-control rounded-3 px-3 py-2" />
+              <div class="row g-4">
+                <div class="col-12 col-lg-6">
+                  <div class="mb-4">
+                    <label class="form-label fw-semibold">Имя</label>
+                    <input v-model="form.name" type="text" class="form-control rounded-3 px-3 py-2" />
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label fw-semibold">Фамилия</label>
+                    <input v-model="form.surname" type="text" class="form-control rounded-3 px-3 py-2" />
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label fw-semibold">Отчество</label>
+                    <input v-model="form.patronymic" type="text" class="form-control rounded-3 px-3 py-2" />
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label fw-semibold">Телефон</label>
+                    <input v-model="form.phone" type="text" class="form-control rounded-3 px-3 py-2" />
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label fw-semibold">Email</label>
+                    <input v-model="form.email" type="email" class="form-control rounded-3 px-3 py-2" />
+                  </div>
+                </div>
+                <div class="col-12 col-lg-6">
+                  <div class="profile-stats">
+                    <h6 class="mb-2">Статистика достижений</h6>
+                    <p class="text-muted mb-3">В этом разделе отображаются все награды за прогресс.</p>
+                    <div class="d-flex flex-wrap gap-2">
+                      <span class="stat-pill">Открыто: {{ achievements.unlockedCount }}</span>
+                      <span class="stat-pill">Всего: {{ achievements.items.length }}</span>
+                      <span class="stat-pill">Очки: {{ achievements.totalPoints }}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-  
-              <div class="mb-4">
-                <label class="form-label fw-semibold">Фамилия</label>
-                <input v-model="form.surname" type="text" class="form-control rounded-3 px-3 py-2" />
-              </div>
-  
-              <div class="mb-4">
-                <label class="form-label fw-semibold">Отчество</label>
-                <input v-model="form.patronymic" type="text" class="form-control rounded-3 px-3 py-2" />
-              </div>
-  
-              <div class="mb-4">
-                <label class="form-label fw-semibold">Телефон</label>
-                <input v-model="form.phone" type="text" class="form-control rounded-3 px-3 py-2" />
-              </div>
-  
-              <div class="mb-4">
-                <label class="form-label fw-semibold">Email</label>
-                <input v-model="form.email" type="email" class="form-control rounded-3 px-3 py-2" />
-              </div>
-  
+
               <div v-if="successMessage" class="alert alert-success py-3 rounded-3" role="alert">
                 {{ successMessage }}
               </div>
@@ -46,6 +61,8 @@
                   Сохранить
                 </button>
               </div>
+
+              <AchievementsSection />
             </div>
           </div>
         </div>
@@ -97,27 +114,50 @@
   .card-body {
     padding: 0 1.5rem 1.5rem;
   }
+
+  .profile-card {
+    overflow: hidden;
+  }
+
+  .profile-stats {
+    border: 1px solid #e8dfff;
+    border-radius: 14px;
+    background: #faf7ff;
+    padding: 1rem;
+  }
+
+  .stat-pill {
+    background-color: #f0e7ff;
+    color: #5d2caf;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    padding: 0.35rem 0.75rem;
+    font-weight: 600;
+  }
   </style>
   
 
 <script setup>
 import Header from './Header.vue';
+import AchievementsSection from './AchievementsSection.vue';
 import { useAuthStore } from '@/stores/auth';
-import { reactive, ref, onMounted } from 'vue';
+import { useAchievementsStore } from '@/stores/achievements';
+import { reactive, ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const auth = useAuthStore();
+const achievements = useAchievementsStore();
 const backendUrl = import.meta.env.VITE_APP_BACKEND;
-const user_id = auth.user.id;
+const user_id = ref(auth.user?.id ?? null);
 
 // форма
 const form = reactive({
-    name: auth.user.name,
-    surname: auth.user.surname,
-    patronymic: auth.user.patronymic,
-    phone: auth.user.phone,
-    email: auth.user.email,
+    name: auth.user?.name ?? '',
+    surname: auth.user?.surname ?? '',
+    patronymic: auth.user?.patronymic ?? '',
+    phone: auth.user?.phone ?? '',
+    email: auth.user?.email ?? '',
 });
 
 // сообщения
@@ -128,7 +168,12 @@ async function saveProfile() {
     successMessage.value = '';
     errorMessage.value = '';
 
-    const response = await fetch(`${backendUrl}/user/update/${user_id}`, {
+    if (!user_id.value) {
+        errorMessage.value = 'Не удалось определить пользователя. Перезайдите в аккаунт.';
+        return;
+    }
+
+    const response = await fetch(`${backendUrl}/user/update/${user_id.value}`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${auth.token}`,
@@ -155,6 +200,30 @@ async function saveProfile() {
 onMounted(() => {
     if (!auth.isAuthenticated) {
         router.push('/login');
+        return;
     }
+
+    if (!auth.user) {
+        auth.fetchCurrentUser();
+    }
+
+    achievements.fetchAchievements(auth.token);
 });
+
+watch(
+    () => auth.user,
+    (user) => {
+        if (!user) {
+            return;
+        }
+
+        user_id.value = user.id;
+        form.name = user.name ?? '';
+        form.surname = user.surname ?? '';
+        form.patronymic = user.patronymic ?? '';
+        form.phone = user.phone ?? '';
+        form.email = user.email ?? '';
+    },
+    { immediate: true }
+);
 </script>
