@@ -1,0 +1,18 @@
+version: '3.9'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_APP_BACKEND: ${VITE_APP_BACKEND}
+        VITE_WS_HOST: ${VITE_WS_HOST}
+        VITE_WS_PORT: ${VITE_WS_PORT}
+        VITE_WS_TLS: ${VITE_WS_TLS}
+        VITE_WS_APP_KEY: ${VITE_WS_APP_KEY}
+    ports:
+      - '3000:80'
+    env_file:
+      - .env
+    restart: unless-stopped
