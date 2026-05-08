@@ -92,6 +92,7 @@ async function submitLogin() {
 
         authStore.setToken(result.token);
         authStore.changeAuthStatus();
+        await authStore.fetchCurrentUser();
         authStore.saveToSessionStorage();
         router.push({ name: 'home' });
     } catch (error) {
