@@ -7,11 +7,16 @@ export const useAuthStore = defineStore('auth', {
         token: null,
     }),
     actions: {
-        async getUserData() {
+        async fetchCurrentUser() {
+            if (!this.token) {
+                return null;
+            }
+
+            const backendUrl = import.meta.env.VITE_APP_BACKEND;
             const response = await fetch(`${backendUrl}/user`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${auth.token}`,
+                    'Authorization': `Bearer ${this.token}`,
                     'Accept': 'application/json'
                 },
                 mode: 'cors'
@@ -19,17 +24,22 @@ export const useAuthStore = defineStore('auth', {
 
             if (!response.ok) {
                 console.error('Ошибка получения данных пользователя');
-                router.push('/login');
-            } else {
-                const result = await response.json();
-                console.log(result);
-
-                auth.setUserData(result);
-                auth.saveToSessionStorage();
+                return null;
             }
+
+            const user = await response.json();
+            this.setUserData(user);
+            this.saveToSessionStorage();
+            return user;
         },
         changeAuthStatus() {
             this.isAuthenticated = true;
+        },
+        clearAuth() {
+            this.isAuthenticated = false;
+            this.user = null;
+            this.token = null;
+            sessionStorage.removeItem('auth');
         },
         setToken(token) {
             this.token = token
