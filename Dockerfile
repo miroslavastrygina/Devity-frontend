@@ -1,10 +1,26 @@
-# Build stage
+# syntax=docker/dockerfile:1
+# BuildKit: кэш npm + повторы npm ci помогают при ECONNRESET к registry.npmjs.org
+
 FROM node:20-alpine AS builder
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm config set registry https://registry.npmjs.org/ && \
-    npm ci --fetch-retries=5 --fetch-retry-factor=2 --fetch-retry-mintimeout=20000
+
+RUN --mount=type=cache,target=/root/.npm,sharing=locked \
+    sh -c '\
+    npm config set registry https://registry.npmjs.org/ && \
+    npm config set cache /root/.npm && \
+    npm config set fetch-retries 20 && \
+    npm config set fetch-retry-mintimeout 60000 && \
+    npm config set fetch-retry-maxtimeout 600000 && \
+    for i in 1 2 3 4 5; do \
+      echo "npm ci: attempt $i of 5..." && \
+      npm ci && echo "npm ci: success" && exit 0; \
+      echo "npm ci: failed, sleeping 30s before retry..."; \
+      sleep 30; \
+    done; \
+    echo "npm ci: all attempts failed"; \
+    exit 1'
 
 COPY . .
 ARG VITE_APP_BACKEND
