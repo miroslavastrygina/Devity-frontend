@@ -4,7 +4,10 @@
 
         <div class="d-flex flex-column flex-md-row vh-100">
             <!-- Левая половина с изображением -->
-            <div class="w-100 w-md-50 bg-image d-none d-md-block"></div>
+            <div
+                class="w-100 w-md-50 bg-image d-none d-md-block"
+                :style="{ backgroundImage: `url(${heroBackground})` }"
+            ></div>
 
             <!-- Правая половина с приветствием -->
             <div class="w-100 w-md-50 d-flex justify-content-center align-items-center bg-light p-4">
@@ -32,7 +35,8 @@ import { useAuthStore } from '@/stores/auth';
 import { useDataStore } from '@/stores/data';
 import { useRouter } from 'vue-router';
 import { computed, onMounted } from 'vue';
-import Header from "./Header.vue";
+import Header from './Header.vue';
+import heroBackground from '@/assets/9bbd9de495f1b05e9abc8f6490c324df.jpg';
 
 const auth = useAuthStore();
 const data = useDataStore();
@@ -76,8 +80,6 @@ onMounted(async () => {
 
 <style scoped>
 .bg-image {
-    background-image: url('src/assets/9bbd9de495f1b05e9abc8f6490c324df.jpg');
-    /* Укажите путь к своему изображению */
     background-size: cover;
     background-position: center;
 }
