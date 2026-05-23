@@ -13,18 +13,34 @@ export const useDataStore = defineStore('data', {
     }),
     actions: {
         findCourse(id) {
+            if (!this.courses) {
+                return undefined;
+            }
             return this.courses.find(course => course.id === Number(id));
         },
         findBlock(id) {
+            if (!this.blocks) {
+                return undefined;
+            }
             return this.blocks.find(block => block.id === Number(id));
         },
         findLesson(id) {
-            return this.lessons.find(lesson => lesson.id === Number(id));
+            if (!this.lessons) {
+                return undefined;
+            }
+            const nid = Number(id);
+            return this.lessons.find((lesson) => Number(lesson.id) === nid);
         },
         findTest(id) {
+            if (!this.tests) {
+                return undefined;
+            }
             return this.tests.find(test => test.id === Number(id));
         },
         findAssignment(id) {
+            if (!this.assignments) {
+                return undefined;
+            }
             return this.assignments.find(assignment => assignment.id === Number(id));
         },
         changeLoadingStatus() {
@@ -118,6 +134,41 @@ export const useDataStore = defineStore('data', {
                 this.changeLoadingStatus();
                 this.saveToSessionStorage();
             }
+        },
+
+        /** Один урок с бэка (полные compiler_blocks, block_id, relations) — мержим в список. */
+        async fetchLesson(token, lessonId) {
+            const id = Number(lessonId);
+            if (Number.isNaN(id)) {
+                return;
+            }
+            const response = await fetch(`${this.backendUrl}/lessons/${id}`, {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: 'application/json',
+                },
+                mode: 'cors',
+            });
+            if (!response.ok) {
+                console.error('Ошибка загрузки урока', id);
+                return;
+            }
+            const result = await response.json();
+            if (!result.success || result.data == null) {
+                return;
+            }
+            const incoming = result.data;
+            const prev = this.lessons ? [...this.lessons] : [];
+            const nid = Number(incoming.id);
+            const idx = prev.findIndex((l) => Number(l.id) === nid);
+            if (idx >= 0) {
+                prev[idx] = { ...prev[idx], ...incoming };
+            } else {
+                prev.push(incoming);
+            }
+            this.setLessons(prev);
+            this.saveToSessionStorage();
         },
         async fetchTests(token) {
             this.changeLoadingStatus();
